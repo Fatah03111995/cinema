@@ -1,3 +1,4 @@
+import 'package:cinema/const.dart';
 import 'package:cinema/pages/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -66,14 +67,14 @@ class _DashboardState extends State<Dashboard> {
                     decoration:
                         BoxDecoration(shape: BoxShape.circle, boxShadow: [
                       BoxShadow(
-                          color: Colors.white.withOpacity(0.2),
+                          color: orange.withOpacity(0.2),
                           blurRadius: isActive ? 5 : 0,
                           spreadRadius: isActive ? 3 : 0)
                     ]),
                   ),
                   Icon(
                     buttomNavBarIcon[index],
-                    color: isActive ? Colors.white : Colors.grey,
+                    color: isActive ? orange : Colors.grey,
                   )
                 ],
               ),
