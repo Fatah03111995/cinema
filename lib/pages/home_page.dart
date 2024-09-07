@@ -11,6 +11,28 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  PageController? pageController;
+  double viewPortFraction = 0.6;
+  double pageOffset = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    pageController =
+        PageController(initialPage: 1, viewportFraction: viewPortFraction)
+          ..addListener(() {
+            setState(() {
+              pageOffset = pageController!.page!;
+            });
+          });
+  }
+
+  @override
+  void dispose() {
+    pageController!.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,6 +147,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 20),
             Expanded(
               child: PageView.builder(
+                controller: pageController,
                 itemBuilder: (context, index) {
                   return ClipRRect(
                     borderRadius: BorderRadius.circular(30),
