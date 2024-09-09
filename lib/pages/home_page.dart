@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cinema/const.dart';
 import 'package:cinema/data_provider/dummy_data.dart';
@@ -14,6 +16,7 @@ class _HomePageState extends State<HomePage> {
   PageController? pageController;
   double viewPortFraction = 0.6;
   double pageOffset = 1;
+  int currentMovie = 1;
 
   @override
   void initState() {
@@ -146,29 +149,81 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: PageView.builder(
-                controller: pageController,
-                itemBuilder: (context, index) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: CachedNetworkImage(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  PageView.builder(
+                    itemCount: DummyData.movies.length,
+                    controller: pageController,
+                    onPageChanged: (value) {
+                      setState(() {
+                        currentMovie = value;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      double scale = max(viewPortFraction,
+                          (1 - (pageOffset - index).abs() + viewPortFraction));
+                      double angle = 0;
+                      if (pageController!.position.haveDimensions) {
+                        angle = index.toDouble() - (pageController!.page ?? 0);
+                        angle = angle * 5.clamp(-5, 5);
+                      }
+
+                      return Padding(
+                        padding: EdgeInsets.only(top: 100 - scale / 1.6 * 100),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Transform.rotate(
+                              angle: angle * pi / 180,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(30),
+                                child: CachedNetworkImage(
+                                  width: 200,
+                                  height: 300,
+                                  key: UniqueKey(),
+                                  imageUrl: DummyData.movies[index].poster,
+                                  errorWidget: (context, url, err) {
+                                    return const Icon(Icons.error);
+                                  },
+                                  progressIndicatorBuilder:
+                                      (context, url, progress) {
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: progress.progress,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  Positioned(
+                      top: 400,
                       width: 200,
-                      height: 300,
-                      key: UniqueKey(),
-                      imageUrl: DummyData.movies[index].poster,
-                      errorWidget: (context, url, err) {
-                        return const Icon(Icons.error);
-                      },
-                      progressIndicatorBuilder: (context, url, progress) {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: progress.progress,
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ...List.generate(DummyData.movies.length, (index) {
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: index == currentMovie ? 30 : 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6),
+                                color: index == currentMovie
+                                    ? orange
+                                    : Colors.grey,
+                              ),
+                            );
+                          })
+                        ],
+                      ))
+                ],
               ),
             )
           ],
